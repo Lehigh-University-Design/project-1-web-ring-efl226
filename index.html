@@ -68,10 +68,11 @@
     });
     canvas.addEventListener("mousemove", e => {
         if (viewMode !== "grid") return;
-      if (!isDragging) return;
-      offsetX = e.clientX - startX;
-      offsetY = e.clientY - startY;
-      draw();
+      if (isDragging) {
+        offsetX = e.clientX - startX;
+        offsetY = e.clientY - startY;
+        draw();
+      }
     });
     canvas.addEventListener("wheel", e => {
         if (viewMode !== "grid") return;
@@ -83,9 +84,10 @@
 
     //Create a function to draw the albums
     function draw() {
+        ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         if (viewMode == "grid"){
-            ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
             albums.forEach(album => {
                 if(album.img && album.img.complete){
@@ -123,12 +125,13 @@
 
     let loadedCount = 0;
     albums.forEach(album => {
-        album.img = new Image();
-        album.img.src = album.cover;
-        album.img.onload = () => {
+        const img = new Image();
+        img.src = album.cover;
+        img.onload = () => {
             loadedCount++;
             album.img = img;
             if (loadedCount === albums.length) {
+                autoFit();
                 draw();
             }
         };
@@ -136,6 +139,7 @@
             console.error("Failed to load image:", album.cover);
             loadedCount++;
             if (loadedCount === albums.length) {
+                autoFit();
                 draw();
             }
         };
