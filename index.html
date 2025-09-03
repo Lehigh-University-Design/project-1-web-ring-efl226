@@ -20,6 +20,31 @@
         const ctx = canvas.getContext("2d");
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+
+        // Now I am going to add albums to the page statically
+        //Albums with cover + title + position
+        const albums = [
+      { title: "Young M.A. - Herstory EP", cover: "images/albums/Young_M.A_Herstory_-_EP.jpg", x: 100, y: 100 },
+      { title: "98", cover: "images/albums/98°_2.0.jpg", x: 400, y: 100 },
+      { title: "B.o.B - Underground Luxury", cover: "images/albums/B.o.B_Underground_Luxury.jpg", x: 700, y: 100 },
+      { title: "Bobby Caldwell - Perfect Island Nights", cover: "images/albums/bobbycaldwell_perfectislandnights_d4m2.jpg", x: 1000, y: 100 },
+      { title: "Brett Eldredge - Bring You Back", cover: "images/albums/Brett_Eldredge_Bring_You_Back.jpg", x: 100, y: 400 },
+      { title: "Bruce Faulconer - DragonBall Z Lost Tracks Vol. 6", cover: "images/albums/Bruce_Faulconer_The_Best_of_DragonBall_Z,_Vol._6_-_The_Lost_Tracks_of_DBZ.jpg", x: 400, y: 400 },
+      { title: "Bruno Mars - 24K Magic", cover: "images/albums/Bruno_Mars_24K_Magic.jpg", x: 700, y: 400 },
+      { title: "C.W. McCall - Greatest Hits", cover: "images/albums/C.W._McCall_C._W._McCall's_Greatest_Hits.jpg", x: 1000, y: 400 },
+      { title: "Charlie Puth - Nine Track Mind", cover: "images/albums/Charlie_Puth_Nine_Track_Mind.jpg", x: 100, y: 700 },
+      { title: "Cody Simpson - 4 U EP", cover: "images/albums/Cody_Simpson_4_U_-_Ep.jpg", x: 400, y: 700 },
+      { title: "Cordae - The Lost Boy", cover: "images/albums/cordae_thelostboy_fq2k.jpg", x: 700, y: 700 },
+      { title: "D.H.T. ft. Edmée - Listen to Your Heart", cover: "images/albums/D.H.T._Featuring_Edmée_Listen_to_Your_Heart.jpg", x: 1000, y: 700 },
+      { title: "Daryl Hall & John Oates - Greatest Hits", cover: "images/albums/Daryl_Hall_&_John_Oates_Greatest_Hits.jpg", x: 1300, y: 100 },
+      { title: "David Guetta - 7", cover: "images/albums/David_Guetta_7.jpg", x: 1300, y: 400 },
+      { title: "David Guetta & Showtek - Your Love Single", cover: "images/albums/davidguettashowtek_yourlovesingle_b2co.jpg", x: 1300, y: 700 },
+      { title: "Dean Martin - The Dean Martin TV Show", cover: "images/albums/deanmartin_thedeanmartintvshow_fauu.jpg", x: 1600, y: 100 },
+      { title: "D.R.U.G.S. - Destroy Rebuild Until God Shows", cover: "images/albums/Destroy_Rebuild_Until_God_Shows_(D.R.U.G.S.)_D.R.U.G.S..jpg", x: 1600, y: 400 },
+      { title: "DJ Snake & Lil Jon - Turn Down for What (Remix)", cover: "images/albums/DJ_Snake_&_Lil_Jon_Turn_Down_for_What_(Remix)_[feat._Juicy_J,_2_Chainz_&_French_Montana]_-_Single.jpg", x: 1600, y: 700 },
+      { title: "Dream Theater - Six Degrees of Inner Turbulence", cover: "images/albums/Dream_Theater_Six_Degrees_of_Inner_Turbulence.jpg", x: 1900, y: 100 },
+      { title: "Eagles - Greatest Hits 1971-1975", cover: "images/albums/Eagles_Their_Greatest_Hits_1971-1975.jpg", x: 1900, y: 400 }
+    ];
     </script>
 </body>
 </html>
