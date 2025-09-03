@@ -21,6 +21,9 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        let viewMode = "grid"; // "grid" or "carousel"
+        let currentIndex = 0;  // for carousel mode
+
         // Now I am going to add albums to the page statically
         //Albums with cover + title + position
         const albums = [
@@ -52,6 +55,7 @@
     let isDragging = false, startX, startY;
 
     canvas.addEventListener("mousedown", e => {
+        if (viewMode !== "grid") return;
       isDragging = true;
       startX = e.clientX - offsetX;
       startY = e.clientY - offsetY;
@@ -63,32 +67,58 @@
       isDragging = false;
     });
     canvas.addEventListener("mousemove", e => {
+        if (viewMode !== "grid") return;
       if (!isDragging) return;
       offsetX = e.clientX - startX;
       offsetY = e.clientY - startY;
+      draw();
     });
     canvas.addEventListener("wheel", e => {
+        if (viewMode !== "grid") return;
       e.preventDefault();
       const zoom = e.deltaY < 0 ? 1.1 : 0.9;
       scale *= zoom;
+      draw();
     });
 
     //Create a function to draw the albums
     function draw() {
-        ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
-        albums.forEach(album => {
-            if(album.img && album.img.complete){
+        if (viewMode == "grid"){
+            ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+            albums.forEach(album => {
+                if(album.img && album.img.complete){
                 ctx.drawImage(album.img,album.x, album.y, 150, 150);
-            } else{
+                } else{
                 ctx.fillStyle = "gray";
                 ctx.fillRect(album.x, album.y, 150, 150);
-            }
+                }
             ctx.fillStyle = "#b76935";
             ctx.font = "16px Montserrat, sans-serif";
             ctx.fillText(album.title, album.x, album.y + 170);
         });
+        } else if (viewMode == 'carousel'){
+            const album = albums[currentIndex];
+            const imgSize = Math.min(canvas.width, canvas.height) * 0.9;
+            const imgX = (canvas.width - imgSize) / 2;
+            const imgY = (canvas.height - imgSize) / 2 - 50;
+
+            //Error handling for image loading
+            if (album.img && album.img.complete) {
+                ctx.drawImage(album.img, imgX, imgY, imgSize, imgSize);
+            } else {
+                ctx.fillStyle = "gray";
+                ctx.fillRect(imgX, imgY, imgSize, imgSize);
+            }
+
+            ctx.fillStyle = "#b76935";
+            ctx.font = "16px Montserrat, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(album.title, canvas.width / 2, imgY + imgSize + 40);
+
+        }
+        
     }
 
     let loadedCount = 0;
