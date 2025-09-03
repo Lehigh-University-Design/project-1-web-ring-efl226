@@ -90,6 +90,26 @@
             ctx.fillText(album.title, album.x, album.y + 170);
         });
     }
+
+    let loadedCount = 0;
+    albums.forEach(album => {
+        album.img = new Image();
+        album.img.src = album.cover;
+        album.img.onload = () => {
+            loadedCount++;
+            album.img = img;
+            if (loadedCount === albums.length) {
+                draw();
+            }
+        };
+        img.onerror = () => {
+            console.error("Failed to load image:", album.cover);
+            loadedCount++;
+            if (loadedCount === albums.length) {
+                draw();
+            }
+        };
+    });
     </script>
 </body>
 </html>
