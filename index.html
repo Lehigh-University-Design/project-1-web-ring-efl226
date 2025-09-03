@@ -45,6 +45,34 @@
       { title: "Dream Theater - Six Degrees of Inner Turbulence", cover: "images/albums/Dream_Theater_Six_Degrees_of_Inner_Turbulence.jpg", x: 1900, y: 100 },
       { title: "Eagles - Greatest Hits 1971-1975", cover: "images/albums/Eagles_Their_Greatest_Hits_1971-1975.jpg", x: 1900, y: 400 }
     ];
+
+
+    //track pan/zoom features
+    let offsetX = 0, offsetY = 0, scale = 1;
+    let isDragging = false, startX, startY;
+
+    canvas.addEventListener("mousedown", e => {
+      isDragging = true;
+      startX = e.clientX - offsetX;
+      startY = e.clientY - offsetY;
+    });
+    canvas.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+    canvas.addEventListener("mouseleave", () => {
+      isDragging = false;
+    });
+    canvas.addEventListener("mousemove", e => {
+      if (!isDragging) return;
+      offsetX = e.clientX - startX;
+      offsetY = e.clientY - startY;
+    });
+    canvas.addEventListener("wheel", e => {
+      e.preventDefault();
+      const zoom = e.deltaY < 0 ? 1.1 : 0.9;
+      scale *= zoom;
+    });
+
     </script>
 </body>
 </html>
