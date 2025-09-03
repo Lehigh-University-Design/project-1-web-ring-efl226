@@ -85,7 +85,7 @@
 
     //Create a function to draw the albums
     function draw() {
-        ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (viewMode == "grid"){
@@ -103,9 +103,9 @@
         });
         } else if (viewMode == 'carousel'){
             const album = albums[currentIndex];
-            const imgSize = Math.min(canvas.width, canvas.height) * 0.9;
+            const imgSize = Math.min(canvas.width, canvas.height) * 0.5;
             const imgX = (canvas.width - imgSize) / 2;
-            const imgY = (canvas.height - imgSize) / 2 - 50;
+            const imgY = (canvas.height - imgSize) / 2 - 150;
 
             //Error handling for image loading
             if (album.img && album.img.complete) {
