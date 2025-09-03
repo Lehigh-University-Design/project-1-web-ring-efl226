@@ -73,6 +73,23 @@
       scale *= zoom;
     });
 
+    //Create a function to draw the albums
+    function draw() {
+        ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+        albums.forEach(album => {
+            if(album.img && album.img.complete){
+                ctx.drawImage(album.img,album.x, album.y, 150, 150);
+            } else{
+                ctx.fillStyle = "gray";
+                ctx.fillRect(album.x, album.y, 150, 150);
+            }
+            ctx.fillStyle = "#b76935";
+            ctx.font = "16px Montserrat, sans-serif";
+            ctx.fillText(album.title, album.x, album.y + 170);
+        });
+    }
     </script>
 </body>
 </html>
