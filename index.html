@@ -11,6 +11,7 @@
 <header>
     <h1>Album Explorer</h1>
     <p>Explore my favorite vinyl records!</p>
+    <button id="toggleViewBtn">Switch to Carousel View</button>
 </header>
  
 <body>
@@ -176,6 +177,18 @@
             document.getElementById("toggleViewBtn").innerText = "Switch to Carousel View";
         }
         draw();
+    });
+
+    //Carousel navigation
+    document.addEventListener("keydown", e => {
+        if (viewMode !== "carousel") return;
+        if (e.key === "ArrowRight") {
+            currentIndex = (currentIndex + 1) % albums.length;
+            draw();
+        } else if (e.key === "ArrowLeft") {
+            currentIndex = (currentIndex - 1 + albums.length) % albums.length;
+            draw();
+        }
     });
     </script>
 </body>
