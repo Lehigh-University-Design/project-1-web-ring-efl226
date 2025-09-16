@@ -10,13 +10,17 @@
 
  
 <body>
-    
+    <header>
+      <div>
         <h1>Album Explorer</h1>
-        <p>Explore my favorite vinyl records!</p>
         <button id="toggleViewBtn">Switch to Carousel View</button>
         <div>
         <button id="resetViewBtn">Reset Grid View</button>
         </div>
+      </div>
+    </header>
+        
+        
     
     
     <canvas id="canvas"></canvas>
@@ -292,38 +296,44 @@
 
 
 
-
-
-    //track pan/zoom features
+ //track pan/zoom features
     let offsetX = 0, offsetY = 0, scale = 1;
     let isDragging = false, startX, startY;
 
+    // animation state
+    let isAnimating = false;
+    let animStart = null;
+    let animDuration = 600; // ms
+    let startScale, startOffsetX, startOffsetY;
+    let targetScale, targetOffsetX, targetOffsetY;
+    let zoomedAlbum = null;
+
     canvas.addEventListener("mousedown", e => {
-        if (viewMode !== "grid") return;
-      isDragging = true;
-      startX = e.clientX - offsetX;
-      startY = e.clientY - offsetY;
+        if (viewMode !== "grid" || isAnimating) return;
+        isDragging = true;
+        startX = e.clientX - offsetX;
+        startY = e.clientY - offsetY;
     });
     canvas.addEventListener("mouseup", () => {
-      isDragging = false;
+        isDragging = false;
     });
     canvas.addEventListener("mouseleave", () => {
-      isDragging = false;
+        isDragging = false;
     });
     canvas.addEventListener("mousemove", e => {
-        if (viewMode !== "grid") return;
-      if (isDragging) {
-        offsetX = e.clientX - startX;
-        offsetY = e.clientY - startY;
-        draw();
-      }
+        if (viewMode !== "grid" || isAnimating) return;
+        if (isDragging) {
+            offsetX = e.clientX - startX;
+            offsetY = e.clientY - startY;
+            draw();
+        }
     });
     canvas.addEventListener("wheel", e => {
-        if (viewMode !== "grid") return;
-      e.preventDefault();
-      const zoom = e.deltaY < 0 ? 1.1 : 0.9;
-      scale *= zoom;
-      draw();
+        if (viewMode !== "grid" || isAnimating) return;
+        e.preventDefault();
+        const zoom = e.deltaY < 0 ? 1.1 : 0.9;
+        scale *= zoom;
+        draw();
     });
 
     //Create a function to draw the albums
@@ -335,15 +345,12 @@
             ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
             albums.forEach(album => {
                 if(album.img && album.img.complete){
-                ctx.drawImage(album.img,album.x, album.y, 150, 150);
+                    ctx.drawImage(album.img,album.x, album.y, 150, 150);
                 } else{
-                ctx.fillStyle = "gray";
-                ctx.fillRect(album.x, album.y, 150, 150);
+                    ctx.fillStyle = "gray";
+                    ctx.fillRect(album.x, album.y, 150, 150);
                 }
-            ctx.fillStyle = "#b76935";
-            ctx.font = "16px Montserrat, sans-serif";
-            ctx.fillText(album.title, album.x, album.y + 170);
-        });
+            });
         } else if (viewMode == 'carousel'){
             const album = albums[currentIndex];
             const imgSize = Math.min(canvas.width, canvas.height) * 0.5;
@@ -371,10 +378,21 @@
             ctx.fillText(`Genre: ${album.genre}`, canvas.width / 2, textY + 48);
             //Display description
             ctx.fillText(album.description, canvas.width / 2, textY + 72, canvas.width * 0.8);
-
-
         }
-        
+
+        // extra: overlay details when zoom finishes in grid
+        if (zoomedAlbum && !isAnimating && viewMode === "grid") {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.fillStyle = "#b76935";
+            ctx.font = "18px Montserrat, sans-serif";
+            ctx.textAlign = "center";
+
+            let textY = canvas.height * 0.75;
+            ctx.fillText(zoomedAlbum.title, canvas.width / 2, textY);
+            ctx.fillText(`Release Date: ${zoomedAlbum.releaseDate}`, canvas.width / 2, textY + 24);
+            ctx.fillText(`Genre: ${zoomedAlbum.genre}`, canvas.width / 2, textY + 48);
+            ctx.fillText(zoomedAlbum.description, canvas.width / 2, textY + 72, canvas.width * 0.8);
+        }
     }
 
     let loadedCount = 0;
@@ -399,9 +417,8 @@
         };
     });
 
-    //Autt-fit function 
+    //Auto-fit function 
     function autoFit() {
-        //Find border of albums
         const minX = Math.min(...albums.map(a => a.x));
         const minY = Math.min(...albums.map(a => a.y));
         const maxX = Math.max(...albums.map(a => a.x + 150));
@@ -410,12 +427,10 @@
         const contentWidth = maxX - minX;
         const contentHeight = maxY - minY;
 
-        //Scale so everything fits inside canvas
         const scaleX = canvas.width / contentWidth;
         const scaleY = canvas.height / contentHeight;
         scale = Math.min(scaleX, scaleY) * 0.9;
 
-        //Center all the content
         offsetX = (canvas.width - contentWidth * scale) / 2 - minX * scale;
         offsetY = (canvas.height - contentHeight * scale) / 2 - minY * scale;
     }
@@ -427,14 +442,17 @@
            document.getElementById("toggleViewBtn").innerText = "Switch to Grid View";
         } else {
             viewMode = "grid";
+            zoomedAlbum = null; // reset zoom
             document.getElementById("toggleViewBtn").innerText = "Switch to Carousel View";
         }
         draw();
     });
+
     //Reset View Button
     document.getElementById("resetViewBtn").addEventListener("click", () => {
         if (viewMode === "grid") {
             autoFit();
+            zoomedAlbum = null;
             draw();
         }
     });
@@ -450,27 +468,57 @@
             draw();
         }
     });
-    // Get more ablum detials on click 
+
+    // Animate zoom helper
+    function animateZoom(timestamp) {
+        if (!animStart) animStart = timestamp;
+        const progress = Math.min((timestamp - animStart) / animDuration, 1);
+
+        const t = progress * (2 - progress); // easing
+
+        scale = startScale + (targetScale - startScale) * t;
+        offsetX = startOffsetX + (targetOffsetX - startOffsetX) * t;
+        offsetY = startOffsetY + (targetOffsetY - startOffsetY) * t;
+
+        draw();
+
+        if (progress < 1) {
+            requestAnimationFrame(animateZoom);
+        } else {
+            isAnimating = false;
+        }
+    }
+
+    // Get more album details on click 
     canvas.addEventListener("click", e => {
-        if (viewMode !== "grid") return;
+        if (viewMode !== "grid" || isAnimating) return;
         
-        // Transform click coordinates to account for pan/zoom
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX - rect.left - offsetX) / scale;
         const y = (e.clientY - rect.top - offsetY) / scale;
 
-        // Check if click is on any album
         for (let i = 0; i < albums.length; i++) {
             const album = albums[i];
             if(
                 x >= album.x && x <= album.x + 150 &&
                 y >= album.y && y <= album.y + 150
             ) {
-                //Switch to carousel view of clicked album
-                viewMode = "carousel";
-                currentIndex = i;
-                document.getElementById("toggleViewBtn").innerText = "Switch to Grid View";
-                draw();
+                zoomedAlbum = album;
+
+                // prepare zoom animation
+                startScale = scale;
+                startOffsetX = offsetX;
+                startOffsetY = offsetY;
+
+                const desiredSize = Math.min(canvas.width, canvas.height) * 0.5;
+                targetScale = desiredSize / 150;
+
+                targetOffsetX = canvas.width / 2 - (album.x + 75) * targetScale;
+                targetOffsetY = canvas.height / 2 - (album.y + 75) * targetScale;
+
+                isAnimating = true;
+                animStart = null;
+                requestAnimationFrame(animateZoom);
                 break;
             }
         }
