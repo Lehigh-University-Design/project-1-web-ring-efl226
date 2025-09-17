@@ -6,13 +6,16 @@ body, html {
     padding: 0;
     height: 100%;
     overflow: hidden;
+    text-align: center;
 }
 header, head {
     background-color: #143642;
     color: #ffffff;
     text-align: center;
+    align-items: center;
+    flex-direction: column;
+    display: flex;
     font-family: 'Montserrat', sans-serif;
-    height: 160px;
 }
 h1 {
     color: #b76935;
@@ -42,6 +45,7 @@ canvas {
     }
 #resetViewBtn {
       margin-top: 10px;
+      margin-bottom: 10px;
       font-size: 16px;
       background: #b76935;
       color: white;
@@ -52,6 +56,3 @@ canvas {
 #resetViewBtn:hover {
       background: #944d28;
     }
-#resetViewBtn.visible {
-            display: block;
-        }
