@@ -47,6 +47,7 @@
     let startScale, startOffsetX, startOffsetY;
     let targetScale, targetOffsetX, targetOffsetY;
     let zoomedAlbum = null;
+    let zoomedAlbumIndex = null;
     const albums = [
   {
     id: 1,
@@ -566,10 +567,48 @@
                 isAnimating = true;
                 animStart = null;
                 requestAnimationFrame(animateZoom);
+                zoomAlbum(i);
                 break;
             }
         }
     });
+
+    function zoomAlbum(index) {
+    zoomedAlbumIndex = index;
+    zoomedAlbum = albums[index];
+    
+
+    startScale = scale;
+    startOffsetX = offsetX;
+    startOffsetY = offsetY;
+
+    const desiredSize = Math.min(canvas.width, canvas.height) * 0.5;
+    targetScale = desiredSize / 150;
+
+    targetOffsetX = canvas.width / 2 - (zoomedAlbum.x + 75) * targetScale;
+    targetOffsetY = canvas.height / 2 - (zoomedAlbum.y + 75) * targetScale;
+
+    isAnimating = true;
+    animStart = null;
+    requestAnimationFrame(animateZoom);
+}
+document.addEventListener("keydown", (event) => {
+    if (zoomedAlbumIndex !== null) {
+        if (event.key === "ArrowRight") {
+            // Go to next album (loop around at end)
+            zoomAlbum((zoomedAlbumIndex + 1) % albums.length);
+        } else if (event.key === "ArrowLeft") {
+            // Go to previous album (loop around at start)
+            zoomAlbum((zoomedAlbumIndex - 1 + albums.length) % albums.length);
+        } else if (event.key === "Escape") {
+            // Exit zoom mode
+            zoomedAlbumIndex = null;
+            zoomedAlbum = null;
+            autoFit();
+            draw();
+        }
+    }
+});
 
     </script>
 </body>
