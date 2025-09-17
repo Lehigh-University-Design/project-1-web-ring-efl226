@@ -592,6 +592,36 @@
     animStart = null;
     requestAnimationFrame(animateZoom);
 }
+function unzoomAlbum() {
+    zoomedAlbumIndex = null;
+    zoomedAlbum = null;
+
+    // Save current state
+    startScale = scale;
+    startOffsetX = offsetX;
+    startOffsetY = offsetY;
+
+    // Compute the auto-fit target values
+    const minX = Math.min(...albums.map(a => a.x));
+    const minY = Math.min(...albums.map(a => a.y));
+    const maxX = Math.max(...albums.map(a => a.x + 150));
+    const maxY = Math.max(...albums.map(a => a.y ));
+
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+
+    const scaleX = canvas.width / contentWidth;
+    const scaleY = canvas.height / contentHeight;
+    targetScale = Math.min(scaleX, scaleY) * 0.9;
+
+    targetOffsetX = (canvas.width - contentWidth * targetScale) / 2 - minX * targetScale;
+    targetOffsetY = (canvas.height - contentHeight * targetScale) / 2 - minY * targetScale;
+
+    // Start animation
+    isAnimating = true;
+    animStart = null;
+    requestAnimationFrame(animateZoom);
+}
 document.addEventListener("keydown", (event) => {
     if (zoomedAlbumIndex !== null) {
         if (event.key === "ArrowRight") {
@@ -602,10 +632,7 @@ document.addEventListener("keydown", (event) => {
             zoomAlbum((zoomedAlbumIndex - 1 + albums.length) % albums.length);
         } else if (event.key === "Escape") {
             // Exit zoom mode
-            zoomedAlbumIndex = null;
-            zoomedAlbum = null;
-            autoFit();
-            draw();
+            unzoomAlbum();
         }
     }
 });
